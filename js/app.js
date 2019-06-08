@@ -1,27 +1,15 @@
 'use strict';
-/*
- * Create a list that holds all of your cards
- */
-let new_cards = [];
-const default_cards = [
-  { card: 'fa-diamond', matched: false },
-  { card: 'fa-paper-plane-o', matched: false },
-  { card: 'fa-anchor', matched: false },
-  { card: 'fa-bolt', matched: false },
-  { card: 'fa-cube', matched: false },
-  { card: 'fa-anchor', matched: false },
-  { card: 'fa-leaf', matched: false },
-  { card: 'fa-bicycle', matched: false },
-  { card: 'fa-diamond', matched: false },
-  { card: 'fa-bomb', matched: false },
-  { card: 'fa-leaf', matched: false },
-  { card: 'fa-bomb', matched: false },
-  { card: 'fa-bolt', matched: false },
-  { card: 'fa-bicycle', matched: false },
-  { card: 'fa-paper-plane-o', matched: false },
-  { card: 'fa-cube', matched: false }
-];
 const STARS = 3;
+const card_icons = [
+  'diamond',
+  'paper-plane-o',
+  'anchor',
+  'bolt',
+  'cube',
+  'leaf',
+  'bicycle',
+  'bomb'
+];
 
 const deck = document.getElementsByClassName('deck')[0];
 const restart = document.getElementsByClassName('restart')[0];
@@ -31,6 +19,7 @@ const times = document.getElementById('times');
 const winning_dialog = document.getElementById('winning-dialog');
 const result = document.getElementById('result');
 
+let new_cards = [];
 let number_of_moves = 0;
 let opened_cards = [];
 let play_time = 0;
@@ -41,16 +30,33 @@ let number_of_stars = STARS;
 initGame();
 loadEventListener();
 
+function buildNewCards() {
+  let cards = [];
+  let icon_index = -1;
+  let card_tracking = Array(8).fill(0);
+  for (var i = 0; i <= 15; i++) {
+    let card_filled = false;
+    while (!card_filled) {
+      icon_index = Math.floor(Math.random() * 8);
+      if (card_tracking[icon_index] < 2) {
+        cards[i] = { card: 'fa-' + card_icons[icon_index], matched: false };
+        card_tracking[icon_index] += 1;
+        card_filled = true;
+      }
+    }
+  }
+  return cards;
+}
+
 // Restart game when user clicks on restart
 function restartGame() {
   resetCounters();
-  initGame();
+  initUI();
 }
 
 // Init game with local storage data if available
 function initGame() {
   initData();
-  //   resetCounters();
   initUI();
 }
 
@@ -81,20 +87,23 @@ function initData() {
         if (ls_matched_pair !== null) matched_pair = ls_matched_pair;
         else matched_pair = 0;
         number_of_moves = ls_number_of_moves;
+        number_of_stars = ls_number_of_stars;
         play_time = ls_play_time;
         opened_cards = [];
-        updateStars(number_of_moves);
-        return;
+        // updateStars(number_of_moves);
+      } else {
+        console.log('Game has been won, resetting...');
+        resetCounters();
       }
+    } else {
+      console.log('localStorage and/or Data is NOT available, resetting...');
+      resetCounters();
     }
   }
-  console.log('localStorage and/or Data is NOT available, resetting...');
-  resetCounters();
 }
 
 function resetCounters() {
-  // clone default cards to new_cards
-  new_cards = JSON.parse(JSON.stringify(default_cards));
+  new_cards = buildNewCards();
   new_cards = shuffle(new_cards);
 
   number_of_moves = 0;
@@ -120,8 +129,6 @@ function initUI() {
   moves.innerHTML = number_of_moves;
   times.innerHTML = play_time;
   result.innerHTML = '';
-  //   console.log('initUI() >>> new_cards:');
-  //   console.log(new_cards);
   storeDataInLocalStorage('cards', new_cards);
   while (deck.firstChild) {
     deck.removeChild(deck.firstChild);
@@ -139,17 +146,37 @@ function initUI() {
     li.appendChild(icon);
     deck.appendChild(li);
   });
-  if (number_of_stars === 3) {
-    [...stars.children].forEach(star_li => {
-      if (!star_li.firstElementChild.classList.contains('fa-star')) {
-        star_li.firstElementChild.classList.add('fa-star');
-      }
-      if (star_li.firstElementChild.classList.contains('fa-star-half')) {
-        star_li.firstElementChild.classList.remove('fa-star-half');
-      }
-    });
-  }
+  // if (number_of_stars === 3) {
+  //   [...stars.children].forEach(star_li => {
+  //     if (!star_li.firstElementChild.classList.contains('fa-star')) {
+  //       star_li.firstElementChild.classList.add('fa-star');
+  //     }
+  //     if (star_li.firstElementChild.classList.contains('fa-star-half')) {
+  //       star_li.firstElementChild.classList.remove('fa-star-half');
+  //     }
+  //   });
+  // }
+
+  updateStarsUI();
   winning_dialog.classList.add('closed');
+}
+
+function updateStarsUI() {
+  [...stars.children].forEach((star_li, index) => {
+    let star_li_icon;
+    star_li_icon = star_li.firstElementChild;
+    if (number_of_stars > index) {
+      if (number_of_stars < index + 1) {
+        star_li_icon.classList.add('fa-star-half');
+        star_li_icon.classList.remove('fa-star');
+      } else {
+        star_li_icon.classList.add('fa-star');
+      }
+    } else {
+      star_li_icon.classList.remove('fa-star-half');
+      star_li_icon.classList.remove('fa-star');
+    }
+  });
 }
 
 // Test local storage functionality
@@ -259,30 +286,15 @@ function increaseMove() {
 }
 
 function updateStars(moves) {
-  let n, star_li, star_li_icon;
-  //   console.log(`updateStars() >> moves: ${moves}`);
-
   if (moves % 4 === 1) {
     if (moves >= 17 && moves <= 37) {
       number_of_stars -= 0.5;
-      n = 5 - Math.floor(moves / 8);
-      //console.log(`updateStars() >> n: ${n}`);
-      star_li = document.querySelector('.stars li:nth-child(' + n + ')');
-      star_li_icon = star_li.firstElementChild;
-      if (moves % 8 === 1) {
-        // console.log(`update to half star for ${n}`);
-        star_li_icon.classList.remove('fa-star');
-        star_li_icon.classList.add('fa-star-half');
-      } else if (moves % 8 === 5) {
-        // console.log(`remove half start for ${n}`);
-        star_li_icon.classList.remove('fa-star-half');
-      }
     } else if (moves >= 37) {
       number_of_stars = 0;
     }
     storeDataInLocalStorage('number_of_stars', number_of_stars);
-    // console.log(`updateStars() >> number of stars: ${number_of_stars}`);
   }
+  updateStarsUI();
 }
 
 // Cards match
