@@ -4,7 +4,7 @@
 
 - [Game Overview](#overview)
 - [State of the game](#state-of-the-game)
-- [Acknowledgement](#acknowledgement)
+- [Dependencies](#dependencies)
 
 ## Overview
 
@@ -20,6 +20,8 @@ Three stars are for 16 moves or less to win the game. Subsequently, half a star 
 
 The game states (cards, number of moves and stars, playing time and number of matched cards) are stored in browser's local storage, until the game is won or the user chooses to restart the game. When the game is opened or browser reload, the game checks for local storage and loads the game state from there if it is available.
 
-## Acknowledgement
+## Dependencies
 
-I use animate.css from [Daniel Eden](https://daneden.github.io/animate.css/) for CSS animiation.
+- animate.css from [Daniel Eden](https://daneden.github.io/animate.css/) for CSS animiation
+- [Font Awesome](https://fontawesome.com) icons and CSS
+- [Google fonts](https://fonts.google.com/)
