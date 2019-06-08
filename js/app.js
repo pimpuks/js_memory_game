@@ -1,3 +1,4 @@
+'use strict';
 /*
  * Create a list that holds all of your cards
  */
@@ -21,7 +22,6 @@ const default_cards = [
   { card: 'fa-cube', matched: false }
 ];
 const STARS = 3;
-const MATCHES = 8;
 
 const deck = document.getElementsByClassName('deck')[0];
 const restart = document.getElementsByClassName('restart')[0];
@@ -40,13 +40,6 @@ let number_of_stars = STARS;
 
 initGame();
 loadEventListener();
-
-/*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided "shuffle" method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
- */
 
 // Restart game when user clicks on restart
 function restartGame() {
@@ -76,15 +69,8 @@ function initData() {
     ls_number_of_stars = loadDataFromLocalStorage('number_of_stars');
     ls_play_time = loadDataFromLocalStorage('play_time');
 
-    // console.log(ls_cards);
-    // console.log(ls_matched_pair);
-    // console.log(ls_number_of_moves);
-    // console.log(ls_number_of_stars);
-    // console.log(ls_play_time);
-
     if (
       ls_cards !== null &&
-      ls_matched_pair !== null &&
       ls_number_of_moves !== null &&
       ls_number_of_stars !== null &&
       ls_play_time !== null
@@ -92,9 +78,9 @@ function initData() {
       if (ls_matched_pair < 8) {
         console.log('Data is available and game is in progress, restoring...');
         new_cards = ls_cards;
-        matched_pair = ls_matched_pair;
+        if (ls_matched_pair !== null) matched_pair = ls_matched_pair;
+        else matched_pair = 0;
         number_of_moves = ls_number_of_moves;
-        // number_of_stars = ls_number_of_stars;
         play_time = ls_play_time;
         opened_cards = [];
         updateStars(number_of_moves);
@@ -107,13 +93,9 @@ function initData() {
 }
 
 function resetCounters() {
-  //   console.log('resetCounters() >>> default_cards:');
-  //   console.log(default_cards);
   // clone default cards to new_cards
   new_cards = JSON.parse(JSON.stringify(default_cards));
   new_cards = shuffle(new_cards);
-  //   console.log('resetCounters() >>> new_cards:');
-  //   console.log(new_cards);
 
   number_of_moves = 0;
   play_time = 0;
@@ -247,26 +229,21 @@ function cardOpen(target) {
   if (opened_cards.length == 2) {
     if (checkCard()) {
       // cards match
-      //   console.log('cards match!');
       cardsMatch();
     } else {
       // cards not match
-      //   console.log('cards not match!');
-      cardsNotMatch();
+      setTimeout(cardsNotMatch, 500);
     }
   }
-  //   console.log(opened_cards);
 }
 
 // Check Card
 function checkCard() {
   let card_match = false;
-  //   console.log(opened_cards);
+
   increaseMove();
   const first_icon = opened_cards[0].firstElementChild.classList[1];
   const second_icon = opened_cards[1].firstElementChild.classList[1];
-  //   console.log(first_icon);
-  //   console.log(second_icon);
   if (first_icon === second_icon) {
     card_match = true;
   }
@@ -282,7 +259,7 @@ function increaseMove() {
 }
 
 function updateStars(moves) {
-  let n;
+  let n, star_li, star_li_icon;
   //   console.log(`updateStars() >> moves: ${moves}`);
 
   if (moves % 4 === 1) {
@@ -313,9 +290,7 @@ function cardsMatch() {
   matched_pair += 1;
 
   opened_cards.forEach(opened_card => {
-    // console.log('cardsMatch');
-    // console.log(opened_card);
-    // console.log(opened_card.getAttribute('id'));
+    let card_id;
     card_id = parseInt(opened_card.getAttribute('id').split('-')[1]);
     new_cards[card_id].matched = true;
     opened_card.classList.remove('open', 'show');
@@ -331,18 +306,15 @@ function cardsMatch() {
 }
 
 function showWinningModal() {
-  //   console.log('showWinningModal(): ' + new Date());
   const msg = `With ${number_of_moves} moves and ${number_of_stars} stars, in ${play_time} seconds`;
   result.innerHTML = msg;
   //  Use setTimeout to give time for matching animation to finish before displaying winning modal
   setTimeout(() => {
-    // console.log('showWinningModal() toggle: ' + new Date());
     winning_dialog.classList.toggle('closed');
   }, 990);
 }
 
 function closeModal() {
-  //   console.log('closeModal');
   winning_dialog.classList.toggle('closed');
   restartGame();
 }
@@ -357,14 +329,12 @@ function cardsNotMatch() {
     opened_card.firstElementChild.classList.remove(original_icons[index]);
     opened_card.firstElementChild.classList.add('fa-exclamation');
   });
-  //   clearUnmatchCards(original_icons);
+
   setTimeout(clearUnmatchCards, 500, original_icons);
 }
 
 // Clear Unmatch Cards
 function clearUnmatchCards(original_icons) {
-  //   console.log(opened_cards);
-  //   console.log(original_icons);
   opened_cards.forEach((opened_card, index) => {
     opened_card.firstElementChild.classList.remove('fa-exclamation');
     opened_card.firstElementChild.classList.add(original_icons[index]);
@@ -389,14 +359,3 @@ function shuffle(array) {
 
   return array;
 }
-
-/*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */
