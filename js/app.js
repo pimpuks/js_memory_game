@@ -146,17 +146,6 @@ function initUI() {
     li.appendChild(icon);
     deck.appendChild(li);
   });
-  // if (number_of_stars === 3) {
-  //   [...stars.children].forEach(star_li => {
-  //     if (!star_li.firstElementChild.classList.contains('fa-star')) {
-  //       star_li.firstElementChild.classList.add('fa-star');
-  //     }
-  //     if (star_li.firstElementChild.classList.contains('fa-star-half')) {
-  //       star_li.firstElementChild.classList.remove('fa-star-half');
-  //     }
-  //   });
-  // }
-
   updateStarsUI();
   winning_dialog.classList.add('closed');
 }
@@ -171,6 +160,7 @@ function updateStarsUI() {
         star_li_icon.classList.remove('fa-star');
       } else {
         star_li_icon.classList.add('fa-star');
+        star_li_icon.classList.remove('fa-star-half');
       }
     } else {
       star_li_icon.classList.remove('fa-star-half');
@@ -287,9 +277,9 @@ function increaseMove() {
 
 function updateStars(moves) {
   if (moves % 4 === 1) {
-    if (moves >= 17 && moves <= 37) {
+    if (moves >= 9 && moves <= 24) {
       number_of_stars -= 0.5;
-    } else if (moves >= 37) {
+    } else if (moves >= 24) {
       number_of_stars = 0;
     }
     storeDataInLocalStorage('number_of_stars', number_of_stars);
