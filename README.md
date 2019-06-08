@@ -8,6 +8,8 @@
 
 ## Overview
 
+Implementation of card memory game using HTML, CSS and Javascript.
+
 The game board consists of sixteen "cards" arranged in a grid. The deck is made up of eight different pairs of cards, each with different symbols on one side. The cards are arranged randomly on the grid with the symbol face down. The rules are: flip over two hidden cards at a time to locate the ones that match. Once all the cards are matched, you are the winner.
 
 Once the user starts opening a card, a timer will starts and the game will start counting the number of moves (1 move = 2 cards opened). Less number of moves to match all cards, the more the stars.
