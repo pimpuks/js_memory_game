@@ -277,9 +277,9 @@ function increaseMove() {
 
 function updateStars(moves) {
   if (moves % 4 === 1) {
-    if (moves >= 9 && moves <= 24) {
+    if (moves >= 17 && moves <= 37) {
       number_of_stars -= 0.5;
-    } else if (moves >= 24) {
+    } else if (moves >= 37) {
       number_of_stars = 0;
     }
     storeDataInLocalStorage('number_of_stars', number_of_stars);
